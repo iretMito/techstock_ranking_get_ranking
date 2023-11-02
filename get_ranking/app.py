@@ -11,7 +11,7 @@ TABLE = 'scores'
 S3_OUTPUT = 's3://mito-bucket/test-json/results/'
 
 # number of retries
-RETRY_COUNT = 10
+RETRY_COUNT = 50
 
 # exam list
 EXAM_LIST = ['SAA', 'SOA', 'SAP', 'CLF', 'DVA', 'DOP', 'ANS', 'SCS', 'DAS', 'MLS', 'DBS', 'PAS', 'CDL', 'ACE', 'PCA',
@@ -77,14 +77,16 @@ def lambda_handler(event, context):
 
         if query_execution_status == 'FAILED':
             print('Query Status: ' + query_execution_status)
-            raise Exception("STATUS:" + query_execution_status)
+            response = {'result': 'error'}
+            return response
 
         else:
             print("STATUS:" + query_execution_status)
-            time.sleep(i)
+            time.sleep(0.1 * i)
     else:
         client.stop_query_execution(QueryExecutionId=query_execution_id)
-        raise Exception('TIME OVER')
+        response = {'result': 'error'}
+        return response
 
     # get query results
     result = client.get_query_results(QueryExecutionId=query_execution_id)
